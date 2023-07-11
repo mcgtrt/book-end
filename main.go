@@ -35,9 +35,11 @@ func main() {
 	)
 
 	// handle users
-	apiv1.Get("/user/:id", userHandler.GetUser)
-	apiv1.Get("/user", userHandler.GetUsers)
-	apiv1.Post("/user", userHandler.PostUser)
+	apiv1.Get("/user/:id", userHandler.HandleGetUser)
+	apiv1.Get("/user", userHandler.HandleGetUsers)
+	apiv1.Post("/user", userHandler.HandlePostUser)
+	apiv1.Put("/user/:id", userHandler.HandlePutUser)
+	apiv1.Delete("/user/:id", userHandler.HandleDeleteUser)
 
 	log.Fatal(app.Listen(*listenAddr))
 }

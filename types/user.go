@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"regexp"
 
+	"go.mongodb.org/mongo-driver/bson"
 	"golang.org/x/crypto/bcrypt"
 )
 
@@ -15,7 +16,7 @@ const (
 	maxLastNameLen  = 64
 	minEmailLen     = 7
 	maxEmailLen     = 128
-	minPasswordLen  = 7
+	minPasswordLen  = 8
 	maxPasswordLen  = 32
 )
 
@@ -41,6 +42,20 @@ func (p CreateUserParams) Validate() map[string]string {
 		errors["password"] = fmt.Sprintf("password must have between %d - %d characters", minPasswordLen, maxPasswordLen)
 	}
 	return errors
+}
+
+func (p CreateUserParams) ToBSON() bson.M {
+	b := bson.M{}
+	if p.FirstName != "" {
+		b["firstName"] = p.FirstName
+	}
+	if p.LastName != "" {
+		b["lastName"] = p.LastName
+	}
+	if p.Email != "" {
+		b["email"] = p.Email
+	}
+	return b
 }
 
 func isEmailValid(e string) bool {
