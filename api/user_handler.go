@@ -39,17 +39,17 @@ func (h *UserHandler) PostUser(c *fiber.Ctx) error {
 	if err := c.BodyParser(&params); err != nil {
 		return err
 	}
-	fmt.Println("user params ok")
+	if err := params.Validate(); len(err) != 0 {
+		return c.JSON(err)
+	}
 	user, err := types.NewUserFromParams(params)
 	if err != nil {
 		return err
 	}
-	fmt.Println("created user from params")
 	insertedUser, err := h.userStore.InsertUser(c.Context(), user)
 	if err != nil {
 		return err
 	}
-	fmt.Println("user inserted to the database")
 	return c.JSON(insertedUser)
 }
 
