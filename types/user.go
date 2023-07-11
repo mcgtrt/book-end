@@ -20,6 +20,33 @@ const (
 	maxPasswordLen  = 32
 )
 
+type UpdateUserParams struct {
+	FirstName string `json:"firstName"`
+	LastName  string `json:"lastName"`
+}
+
+func (p UpdateUserParams) Validate() map[string]string {
+	errors := make(map[string]string)
+	if len(p.FirstName) < minFirstNameLen || len(p.FirstName) > maxFirstNameLen {
+		errors["firstName"] = fmt.Sprintf("first name must be between %d - %d characters", minFirstNameLen, maxFirstNameLen)
+	}
+	if len(p.LastName) < minLastNameLen || len(p.LastName) > maxLastNameLen {
+		errors["lastName"] = fmt.Sprintf("last name must be between %d - %d characters", minLastNameLen, maxLastNameLen)
+	}
+	return errors
+}
+
+func (p UpdateUserParams) ToBSON() bson.M {
+	b := bson.M{}
+	if p.FirstName != "" {
+		b["firstName"] = p.FirstName
+	}
+	if p.LastName != "" {
+		b["lastName"] = p.LastName
+	}
+	return b
+}
+
 type CreateUserParams struct {
 	FirstName string `json:"firstName"`
 	LastName  string `json:"lastName"`
@@ -42,20 +69,6 @@ func (p CreateUserParams) Validate() map[string]string {
 		errors["password"] = fmt.Sprintf("password must have between %d - %d characters", minPasswordLen, maxPasswordLen)
 	}
 	return errors
-}
-
-func (p CreateUserParams) ToBSON() bson.M {
-	b := bson.M{}
-	if p.FirstName != "" {
-		b["firstName"] = p.FirstName
-	}
-	if p.LastName != "" {
-		b["lastName"] = p.LastName
-	}
-	if p.Email != "" {
-		b["email"] = p.Email
-	}
-	return b
 }
 
 func isEmailValid(e string) bool {

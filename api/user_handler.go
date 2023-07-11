@@ -56,7 +56,7 @@ func (h *UserHandler) HandlePostUser(c *fiber.Ctx) error {
 func (h *UserHandler) HandlePutUser(c *fiber.Ctx) error {
 	var (
 		id     = c.Params("id")
-		params *types.CreateUserParams
+		params *types.UpdateUserParams
 	)
 	if err := c.BodyParser(&params); err != nil {
 		return err
