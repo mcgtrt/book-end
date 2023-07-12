@@ -51,7 +51,7 @@ type CreateUserParams struct {
 	FirstName string `json:"firstName"`
 	LastName  string `json:"lastName"`
 	Email     string `json:"email"`
-	Password  string `json:"-"`
+	Password  string `json:"password"`
 }
 
 func (p CreateUserParams) Validate() map[string]string {

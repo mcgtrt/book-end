@@ -30,7 +30,7 @@ func main() {
 	var (
 		app         = fiber.New(config)
 		apiv1       = app.Group("/api/v1")
-		userStore   = store.NewMongoUserStore(client)
+		userStore   = store.NewMongoUserStore(client, store.DBNAME)
 		userHandler = api.NewUserHandler(userStore)
 	)
 

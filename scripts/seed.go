@@ -26,6 +26,6 @@ func init() {
 		panic(err)
 	}
 
-	userStore = store.NewMongoUserStore(client)
+	userStore = store.NewMongoUserStore(client, store.DBNAME)
 	userHandler = api.NewUserHandler(userStore)
 }

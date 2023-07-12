@@ -15,6 +15,8 @@ type UserStore interface {
 	InsertUser(context.Context, *types.User) (*types.User, error)
 	UpdateUser(context.Context, string, *types.UpdateUserParams) error
 	DeleteUser(context.Context, string) error
+
+	Dropper
 }
 
 type MongoUserStore struct {
@@ -77,9 +79,13 @@ func (s *MongoUserStore) DeleteUser(ctx context.Context, id string) error {
 	return err
 }
 
-func NewMongoUserStore(client *mongo.Client) *MongoUserStore {
+func (s *MongoUserStore) Drop(ctx context.Context) error {
+	return s.coll.Drop(ctx)
+}
+
+func NewMongoUserStore(client *mongo.Client, name string) *MongoUserStore {
 	return &MongoUserStore{
 		client: client,
-		coll:   client.Database(DBNAME).Collection("users"),
+		coll:   client.Database(name).Collection("users"),
 	}
 }
