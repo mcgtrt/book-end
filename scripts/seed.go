@@ -29,3 +29,17 @@ func init() {
 	userStore = store.NewMongoUserStore(client, store.DBNAME)
 	userHandler = api.NewUserHandler(userStore)
 }
+
+func seedHotel(name, location string) {
+	// hotel := types.Hotel{
+	// 	Name: name,
+	// 	Location: location,
+	// }
+	// rooms := []types.Room{
+	// 	types.Room{
+	// 		Type: types.DoubleBedRoomType,
+	// 		Price: 99.97,
+	// 		HotelID:
+	// 	},
+	// }
+}
