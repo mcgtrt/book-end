@@ -28,20 +28,3 @@ type Hotel struct {
 	Location string   `bson:"location" json:"location"`
 	Rooms    []string `bson:"rooms" json:"rooms"`
 }
-
-type RoomType int
-
-const (
-	_ RoomType = iota
-	SingleBedRoomType
-	DoubleBedRoomType
-	ApartmentRoomType
-	VipRoomType
-)
-
-type Room struct {
-	ID      string   `bson:"_id,omitempty" json:"id,omitempty"`
-	Type    RoomType `bson:"type" json:"type"`
-	Price   float64  `bson:"price" json:"price"`
-	HotelID string   `bson:"hotelID" json:"hotelID"`
-}
