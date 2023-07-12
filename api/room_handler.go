@@ -10,7 +10,14 @@ type RoomHandler struct {
 	roomStore store.RoomStore
 }
 
-// TODO : FINISH OTHER HANDLER METHODS WHEN FINISHED ROOM STORE
+func (h *RoomHandler) HandleGetRooms(c *fiber.Ctx) error {
+	id := c.Params("id")
+	rooms, err := h.roomStore.GetRooms(c.Context(), id)
+	if err != nil {
+		return err
+	}
+	return c.JSON(rooms)
+}
 
 func (h *RoomHandler) HandlePostRoom(c *fiber.Ctx) error {
 	var params *types.CreateRoomParams

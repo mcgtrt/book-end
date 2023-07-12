@@ -7,6 +7,7 @@ import (
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/mcgtrt/book-end/api"
+	"github.com/mcgtrt/book-end/api/middleware"
 	"github.com/mcgtrt/book-end/store"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
@@ -29,10 +30,13 @@ func main() {
 
 	var (
 		app     = fiber.New(config)
-		apiv1   = app.Group("/api/v1")
+		apiv1   = app.Group("/api/v1", middleware.JWTAuthenticate)
 		store   = store.NewMongoStore(client, store.DBNAME)
 		handler = api.NewHandler(store)
 	)
+
+	// handle auth
+	app.Post("/api/auth", handler.Auth.HandleAuth)
 
 	// handle users
 	apiv1.Get("/user/:id", handler.User.HandleGetUser)
@@ -49,6 +53,7 @@ func main() {
 	apiv1.Delete("/hotel/:id", handler.Hotel.HandleDeleteHotel)
 
 	// handle hotel rooms
+	apiv1.Get("/hotel/:id/room", handler.Room.HandleGetRooms)
 	apiv1.Post("/hotel/:id/room", handler.Room.HandlePostRoom)
 
 	log.Fatal(app.Listen(*listenAddr))

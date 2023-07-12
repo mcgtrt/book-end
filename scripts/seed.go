@@ -3,7 +3,6 @@ package main
 import (
 	"context"
 
-	"github.com/mcgtrt/book-end/api"
 	"github.com/mcgtrt/book-end/store"
 	"github.com/mcgtrt/book-end/types"
 	"go.mongodb.org/mongo-driver/mongo"
@@ -11,10 +10,9 @@ import (
 )
 
 var (
-	ctx     = context.Background()
-	client  *mongo.Client
-	db      *store.Store
-	handler *api.Handler
+	ctx    = context.Background()
+	client *mongo.Client
+	db     *store.Store
 )
 
 func main() {
@@ -35,7 +33,6 @@ func init() {
 	}
 
 	db = store.NewMongoStore(client, store.DBNAME)
-	handler = api.NewHandler(db)
 
 	db.User.Drop(ctx)
 	db.Hotel.Drop(ctx)

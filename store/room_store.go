@@ -10,7 +10,6 @@ import (
 )
 
 type RoomStore interface {
-	// TODO : FINISH INTERFACE METHODS AND CORRESPONDING MONGO ROOM STORE FUNCTIONS
 	GetRooms(context.Context, string) ([]*types.Room, error)
 	InsertRoom(context.Context, *types.Room) (*types.Room, error)
 
