@@ -27,7 +27,7 @@ func (h *RoomHandler) HandlePostRoom(c *fiber.Ctx) error {
 	return c.JSON(insertedRoom)
 }
 
-func NewRoomHandler(roomStore store.RoomStore) *RoomHandler {
+func newRoomHandler(roomStore store.RoomStore) *RoomHandler {
 	return &RoomHandler{
 		roomStore: roomStore,
 	}

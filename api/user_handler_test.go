@@ -15,11 +15,11 @@ import (
 )
 
 type testdb struct {
-	store.UserStore
+	db *store.Store
 }
 
-func (d *testdb) teardown(t *testing.T) {
-	if err := d.Drop(context.Background()); err != nil {
+func (tdb *testdb) teardown(t *testing.T) {
+	if err := tdb.db.User.Drop(context.Background()); err != nil {
 		t.Fatal(err)
 	}
 }
@@ -28,7 +28,7 @@ func TestPostUser(t *testing.T) {
 	tdb := setup(t)
 	defer tdb.teardown(t)
 
-	app := getFiberApp(tdb.UserStore)
+	app := getFiberApp(tdb.db)
 	params := &types.CreateUserParams{
 		FirstName: "John",
 		LastName:  "Doe",
@@ -72,19 +72,19 @@ func setup(t *testing.T) *testdb {
 	if err != nil {
 		panic(err)
 	}
-	userStore := store.NewMongoUserStore(client, store.TestDBNAME)
+	store := store.NewMongoStore(client, store.DBNAME)
 	return &testdb{
-		UserStore: userStore,
+		db: store,
 	}
 }
 
-func getFiberApp(userStore store.UserStore) *fiber.App {
-	userHandler := NewUserHandler(userStore)
+func getFiberApp(store *store.Store) *fiber.App {
+	handler := NewHandler(store)
 	app := fiber.New()
-	app.Get("/user/:id", userHandler.HandleGetUser)
-	app.Get("/user", userHandler.HandleGetUsers)
-	app.Post("/user", userHandler.HandlePostUser)
-	app.Put("/user/:id", userHandler.HandlePutUser)
-	app.Delete("/user/:id", userHandler.HandleDeleteUser)
+	app.Get("/user/:id", handler.User.HandleGetUser)
+	app.Get("/user", handler.User.HandleGetUsers)
+	app.Post("/user", handler.User.HandlePostUser)
+	app.Put("/user/:id", handler.User.HandlePutUser)
+	app.Delete("/user/:id", handler.User.HandleDeleteUser)
 	return app
 }

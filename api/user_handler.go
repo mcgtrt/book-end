@@ -75,7 +75,7 @@ func (h *UserHandler) HandleDeleteUser(c *fiber.Ctx) error {
 	return c.JSON(map[string]string{"deleted": id})
 }
 
-func NewUserHandler(userStore store.UserStore) *UserHandler {
+func newUserHandler(userStore store.UserStore) *UserHandler {
 	return &UserHandler{
 		userStore: userStore,
 	}

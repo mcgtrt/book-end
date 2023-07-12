@@ -59,7 +59,7 @@ func (h *HotelHandler) HandleDeleteHotel(c *fiber.Ctx) error {
 	return c.JSON(map[string]string{"deleted": id})
 }
 
-func NewHotelHandler(hotelStore store.HotelStore) *HotelHandler {
+func newHotelHandler(hotelStore store.HotelStore) *HotelHandler {
 	return &HotelHandler{
 		hotelStore: hotelStore,
 	}

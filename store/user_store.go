@@ -83,7 +83,7 @@ func (s *MongoUserStore) Drop(ctx context.Context) error {
 	return s.coll.Drop(ctx)
 }
 
-func NewMongoUserStore(client *mongo.Client, name string) *MongoUserStore {
+func newMongoUserStore(client *mongo.Client, name string) *MongoUserStore {
 	return &MongoUserStore{
 		client: client,
 		coll:   client.Database(name).Collection("users"),

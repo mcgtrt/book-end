@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 
+	"github.com/mcgtrt/book-end/api"
 	"github.com/mcgtrt/book-end/store"
 	"github.com/mcgtrt/book-end/types"
 	"go.mongodb.org/mongo-driver/mongo"
@@ -10,11 +11,10 @@ import (
 )
 
 var (
-	ctx        = context.Background()
-	client     *mongo.Client
-	userStore  store.UserStore
-	hotelStore store.HotelStore
-	roomStore  store.RoomStore
+	ctx     = context.Background()
+	client  *mongo.Client
+	db      *store.Store
+	handler *api.Handler
 )
 
 func main() {
@@ -34,13 +34,8 @@ func init() {
 		panic(err)
 	}
 
-	userStore = store.NewMongoUserStore(client, store.DBNAME)
-	hotelStore = store.NewMongoHotelStore(client, store.DBNAME)
-	roomStore = store.NewMongoRoomStore(client, store.DBNAME, hotelStore)
-
-	userStore.Drop(ctx)
-	hotelStore.Drop(ctx)
-	roomStore.Drop(ctx)
+	db = store.NewMongoStore(client, store.DBNAME)
+	handler = api.NewHandler(db)
 }
 
 func seedUser(fname, lname, email, pass string) error {
@@ -54,7 +49,7 @@ func seedUser(fname, lname, email, pass string) error {
 	if err != nil {
 		return err
 	}
-	_, err = userStore.InsertUser(ctx, user)
+	_, err = db.User.InsertUser(ctx, user)
 	return err
 }
 
@@ -64,7 +59,7 @@ func seedHotel(name, location string) error {
 		Location: location,
 		Rooms:    []string{},
 	}
-	insertedHotel, err := hotelStore.InsertHotel(ctx, hotel)
+	insertedHotel, err := db.Hotel.InsertHotel(ctx, hotel)
 	if err != nil {
 		return err
 	}
@@ -86,7 +81,7 @@ func seedHotel(name, location string) error {
 
 	for _, room := range rooms {
 		room.HotelID = insertedHotel.ID
-		_, err := roomStore.InsertRoom(ctx, &room)
+		_, err := db.Room.InsertRoom(ctx, &room)
 		if err != nil {
 			return err
 		}

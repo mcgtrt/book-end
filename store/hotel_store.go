@@ -96,7 +96,7 @@ func (s *MongoHotelStore) Drop(ctx context.Context) error {
 	return s.coll.Drop(ctx)
 }
 
-func NewMongoHotelStore(client *mongo.Client, dbname string) *MongoHotelStore {
+func newMongoHotelStore(client *mongo.Client, dbname string) *MongoHotelStore {
 	return &MongoHotelStore{
 		client: client,
 		coll:   client.Database(dbname).Collection("hotels"),
