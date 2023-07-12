@@ -11,7 +11,7 @@ type Handler struct {
 func NewHandler(store *store.Store) *Handler {
 	return &Handler{
 		User:  newUserHandler(store.User),
-		Hotel: newHotelHandler(store.Hotel),
+		Hotel: newHotelHandler(store.Hotel, store.Room),
 		Room:  newRoomHandler(store.Room),
 	}
 }

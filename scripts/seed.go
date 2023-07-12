@@ -22,9 +22,9 @@ func main() {
 	seedUser("Mark", "Spencer", "mark@spencer.com", "superstrongpassword123")
 	seedUser("Sabrina", "Glevesig", "sabrina@glevesig.com", "123superstrongpassword")
 
-	seedHotel("Balenciaga", "France")
-	seedHotel("Adidas", "United States")
-	seedHotel("Nike", "China")
+	seedHotel("Balenciaga", "France", 3)
+	seedHotel("Adidas", "United States", 5)
+	seedHotel("Nike", "China", 4)
 }
 
 func init() {
@@ -36,6 +36,10 @@ func init() {
 
 	db = store.NewMongoStore(client, store.DBNAME)
 	handler = api.NewHandler(db)
+
+	db.User.Drop(ctx)
+	db.Hotel.Drop(ctx)
+	db.Room.Drop(ctx)
 }
 
 func seedUser(fname, lname, email, pass string) error {
@@ -53,11 +57,12 @@ func seedUser(fname, lname, email, pass string) error {
 	return err
 }
 
-func seedHotel(name, location string) error {
+func seedHotel(name, location string, rating int) error {
 	hotel := &types.Hotel{
 		Name:     name,
 		Location: location,
 		Rooms:    []string{},
+		Rating:   rating,
 	}
 	insertedHotel, err := db.Hotel.InsertHotel(ctx, hotel)
 	if err != nil {

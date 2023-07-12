@@ -8,6 +8,7 @@ import (
 
 type HotelHandler struct {
 	hotelStore store.HotelStore
+	roomStore  store.RoomStore
 }
 
 func (h *HotelHandler) HandleGetHotel(c *fiber.Ctx) error {
@@ -20,9 +21,25 @@ func (h *HotelHandler) HandleGetHotel(c *fiber.Ctx) error {
 }
 
 func (h *HotelHandler) HandleGetHotels(c *fiber.Ctx) error {
+	var params types.HotelQueryParams
+	if err := c.QueryParser(&params); err != nil {
+		return err
+	}
 	hotels, err := h.hotelStore.GetHotels(c.Context())
 	if err != nil {
 		return err
+	}
+	if params.Rooms {
+		var hotelsWithRooms []*types.HotelWithRooms
+		for _, hotel := range hotels {
+			rooms, err := h.roomStore.GetRooms(c.Context(), hotel.ID)
+			if err != nil {
+				return err
+			}
+			hotelWithRooms := hotel.MakeHotelWithRooms(rooms)
+			hotelsWithRooms = append(hotelsWithRooms, hotelWithRooms)
+		}
+		return c.JSON(hotelsWithRooms)
 	}
 	return c.JSON(hotels)
 }
@@ -59,8 +76,9 @@ func (h *HotelHandler) HandleDeleteHotel(c *fiber.Ctx) error {
 	return c.JSON(map[string]string{"deleted": id})
 }
 
-func newHotelHandler(hotelStore store.HotelStore) *HotelHandler {
+func newHotelHandler(hotelStore store.HotelStore, roomStore store.RoomStore) *HotelHandler {
 	return &HotelHandler{
 		hotelStore: hotelStore,
+		roomStore:  roomStore,
 	}
 }

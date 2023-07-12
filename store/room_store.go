@@ -4,12 +4,14 @@ import (
 	"context"
 
 	"github.com/mcgtrt/book-end/types"
+	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
 )
 
 type RoomStore interface {
 	// TODO : FINISH INTERFACE METHODS AND CORRESPONDING MONGO ROOM STORE FUNCTIONS
+	GetRooms(context.Context, string) ([]*types.Room, error)
 	InsertRoom(context.Context, *types.Room) (*types.Room, error)
 
 	Dropper
@@ -20,6 +22,19 @@ type MongoRoomStore struct {
 	coll   *mongo.Collection
 
 	hotelStore HotelStore
+}
+
+func (s *MongoRoomStore) GetRooms(ctx context.Context, id string) ([]*types.Room, error) {
+	filter := bson.M{"hotelID": id}
+	cur, err := s.coll.Find(ctx, filter)
+	if err != nil {
+		return nil, err
+	}
+	var rooms []*types.Room
+	if err := cur.All(ctx, &rooms); err != nil {
+		return nil, err
+	}
+	return rooms, nil
 }
 
 func (s *MongoRoomStore) InsertRoom(ctx context.Context, room *types.Room) (*types.Room, error) {
