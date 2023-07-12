@@ -11,10 +11,13 @@ import (
 
 type UserStore interface {
 	GetUserByID(context.Context, string) (*types.User, error)
+	GetUserByEmail(context.Context, string) (*types.User, error)
 	GetUsers(context.Context) ([]*types.User, error)
 	InsertUser(context.Context, *types.User) (*types.User, error)
 	UpdateUser(context.Context, string, *types.UpdateUserParams) error
 	DeleteUser(context.Context, string) error
+
+	Dropper
 }
 
 type MongoUserStore struct {
@@ -28,6 +31,15 @@ func (s *MongoUserStore) GetUserByID(ctx context.Context, id string) (*types.Use
 		return nil, err
 	}
 	filter := bson.M{"_id": oid}
+	var user *types.User
+	if err := s.coll.FindOne(ctx, filter).Decode(&user); err != nil {
+		return nil, err
+	}
+	return user, nil
+}
+
+func (s *MongoUserStore) GetUserByEmail(ctx context.Context, email string) (*types.User, error) {
+	filter := bson.M{"email": email}
 	var user *types.User
 	if err := s.coll.FindOne(ctx, filter).Decode(&user); err != nil {
 		return nil, err
@@ -77,9 +89,13 @@ func (s *MongoUserStore) DeleteUser(ctx context.Context, id string) error {
 	return err
 }
 
-func NewMongoUserStore(client *mongo.Client) *MongoUserStore {
+func (s *MongoUserStore) Drop(ctx context.Context) error {
+	return s.coll.Drop(ctx)
+}
+
+func newMongoUserStore(client *mongo.Client, name string) *MongoUserStore {
 	return &MongoUserStore{
 		client: client,
-		coll:   client.Database(DBNAME).Collection("users"),
+		coll:   client.Database(name).Collection("users"),
 	}
 }
