@@ -29,10 +29,10 @@ func main() {
 	}
 
 	var (
-		app     = fiber.New(config)
-		apiv1   = app.Group("/api/v1", middleware.JWTAuthenticate)
 		store   = store.NewMongoStore(client, store.DBNAME)
 		handler = api.NewHandler(store)
+		app     = fiber.New(config)
+		apiv1   = app.Group("/api/v1", middleware.JWTAuthenticate(store.User))
 	)
 
 	// handle auth
@@ -55,6 +55,9 @@ func main() {
 	// handle hotel rooms
 	apiv1.Get("/hotel/:id/room", handler.Room.HandleGetRooms)
 	apiv1.Post("/hotel/:id/room", handler.Room.HandlePostRoom)
+
+	// handle bookings
+	apiv1.Post("/room/:id/book", handler.Room.HandleBookRoom)
 
 	log.Fatal(app.Listen(*listenAddr))
 }

@@ -14,6 +14,6 @@ func NewHandler(store *store.Store) *Handler {
 		Auth:  newAuthHandler(store.User),
 		User:  newUserHandler(store.User),
 		Hotel: newHotelHandler(store.Hotel, store.Room),
-		Room:  newRoomHandler(store.Room),
+		Room:  newRoomHandler(store),
 	}
 }

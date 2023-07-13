@@ -65,7 +65,7 @@ func (h *AuthHandler) HandleAuth(c *fiber.Ctx) error {
 func newToken(user *types.User) string {
 	expires := time.Now().Add(time.Hour * 4).Unix()
 	claims := jwt.MapClaims{
-		"id":      user.ID,
+		"userID":  user.ID,
 		"email":   user.Email,
 		"expires": expires,
 	}

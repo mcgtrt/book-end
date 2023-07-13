@@ -13,19 +13,22 @@ const (
 )
 
 type Store struct {
-	User  UserStore
-	Hotel HotelStore
-	Room  RoomStore
+	User    UserStore
+	Hotel   HotelStore
+	Room    RoomStore
+	Booking BookingStore
 }
 
 func NewMongoStore(client *mongo.Client, dbname string) *Store {
 	user := newMongoUserStore(client, dbname)
 	hotel := newMongoHotelStore(client, dbname)
 	room := newMongoRoomStore(client, dbname, hotel)
+	booking := NewMongoBookingStore(client, dbname)
 	return &Store{
-		User:  user,
-		Hotel: hotel,
-		Room:  room,
+		User:    user,
+		Hotel:   hotel,
+		Room:    room,
+		Booking: booking,
 	}
 }
 
