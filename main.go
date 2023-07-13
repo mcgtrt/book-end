@@ -57,7 +57,9 @@ func main() {
 	apiv1.Post("/hotel/:id/room", handler.Room.HandlePostRoom)
 
 	// handle bookings
-	apiv1.Post("/room/:id/book", handler.Room.HandleBookRoom)
+	apiv1.Get("/booking/:id", handler.Booking.HandleGetBooking)
+	apiv1.Get("/booking", handler.Booking.HandleGetBookings)
+	apiv1.Post("/booking/:id", handler.Booking.HandlePostBooking)
 
 	log.Fatal(app.Listen(*listenAddr))
 }
