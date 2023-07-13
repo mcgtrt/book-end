@@ -72,7 +72,7 @@ func setup(t *testing.T) *testdb {
 	if err != nil {
 		panic(err)
 	}
-	store := store.NewMongoStore(client, store.DBNAME)
+	store := store.NewMongoStore(client, store.TestDBNAME)
 	return &testdb{
 		db: store,
 	}
@@ -81,10 +81,7 @@ func setup(t *testing.T) *testdb {
 func getFiberApp(store *store.Store) *fiber.App {
 	handler := NewHandler(store)
 	app := fiber.New()
-	app.Get("/user/:id", handler.User.HandleGetUser)
-	app.Get("/user", handler.User.HandleGetUsers)
+	app.Post("/auth", handler.Auth.HandleAuth)
 	app.Post("/user", handler.User.HandlePostUser)
-	app.Put("/user/:id", handler.User.HandlePutUser)
-	app.Delete("/user/:id", handler.User.HandleDeleteUser)
 	return app
 }
