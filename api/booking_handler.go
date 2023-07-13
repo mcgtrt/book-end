@@ -23,6 +23,19 @@ func (h *BookingHandler) HandleGetBooking(c *fiber.Ctx) error {
 	if err != nil {
 		return err
 	}
+	user, ok := c.Context().Value("user").(*types.User)
+	if !ok {
+		return c.Status(http.StatusInternalServerError).JSON(genericResponse{
+			Type: "error",
+			Msg:  "internal server error",
+		})
+	}
+	if !user.Admin && user.ID != booking.UserID {
+		return c.Status(http.StatusUnauthorized).JSON(genericResponse{
+			Type: "error",
+			Msg:  "unauthorised",
+		})
+	}
 	return c.JSON(booking)
 }
 

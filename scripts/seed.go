@@ -16,9 +16,9 @@ var (
 )
 
 func main() {
-	seedUser("John", "Doe", "john@doe.com", "superstrongpassword")
-	seedUser("Mark", "Spencer", "mark@spencer.com", "superstrongpassword123")
-	seedUser("Sabrina", "Glevesig", "sabrina@glevesig.com", "123superstrongpassword")
+	seedUser("John", "Doe", "john@doe.com", "superstrongpassword", false)
+	seedUser("Mark", "Spencer", "mark@spencer.com", "superstrongpassword123", false)
+	seedUser("Sabrina", "Glevesig", "sabrina@glevesig.com", "123superstrongpassword", true)
 
 	seedHotel("Balenciaga", "France", 3)
 	seedHotel("Adidas", "United States", 5)
@@ -39,7 +39,7 @@ func init() {
 	db.Room.Drop(ctx)
 }
 
-func seedUser(fname, lname, email, pass string) error {
+func seedUser(fname, lname, email, pass string, isAdmin bool) error {
 	params := &types.CreateUserParams{
 		FirstName: fname,
 		LastName:  lname,
@@ -50,6 +50,7 @@ func seedUser(fname, lname, email, pass string) error {
 	if err != nil {
 		return err
 	}
+	user.Admin = isAdmin
 	_, err = db.User.InsertUser(ctx, user)
 	return err
 }
