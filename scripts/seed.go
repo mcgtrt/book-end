@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"time"
 
 	"github.com/mcgtrt/book-end/store"
 	"github.com/mcgtrt/book-end/types"
@@ -16,13 +17,17 @@ var (
 )
 
 func main() {
-	seedUser("John", "Doe", "john@doe.com", "superstrongpassword", false)
+	user, _ := seedUser("John", "Doe", "john@doe.com", "superstrongpassword", false)
 	seedUser("Mark", "Spencer", "mark@spencer.com", "superstrongpassword123", false)
 	seedUser("Sabrina", "Glevesig", "sabrina@glevesig.com", "123superstrongpassword", true)
 
-	seedHotel("Balenciaga", "France", 3)
-	seedHotel("Adidas", "United States", 5)
+	hotel, _ := seedHotel("Adidas", "United States", 5)
+	seedHotel("Puma", "France", 3)
 	seedHotel("Nike", "China", 4)
+
+	seedBooking(user.ID, hotel.Rooms[0], 5, time.Now().AddDate(0, 1, 0), time.Now().AddDate(0, 1, 5), false)
+	seedBooking(user.ID, hotel.Rooms[0], 4, time.Now().AddDate(0, 1, 10), time.Now().AddDate(0, 1, 15), false)
+	seedBooking(user.ID, hotel.Rooms[1], 4, time.Now().AddDate(0, 0, 20), time.Now().AddDate(0, 1, 0), false)
 }
 
 func init() {
@@ -37,9 +42,10 @@ func init() {
 	db.User.Drop(ctx)
 	db.Hotel.Drop(ctx)
 	db.Room.Drop(ctx)
+	db.Booking.Drop(ctx)
 }
 
-func seedUser(fname, lname, email, pass string, isAdmin bool) error {
+func seedUser(fname, lname, email, pass string, isAdmin bool) (*types.User, error) {
 	params := &types.CreateUserParams{
 		FirstName: fname,
 		LastName:  lname,
@@ -48,14 +54,17 @@ func seedUser(fname, lname, email, pass string, isAdmin bool) error {
 	}
 	user, err := types.NewUserFromParams(params)
 	if err != nil {
-		return err
+		return nil, err
 	}
 	user.Admin = isAdmin
-	_, err = db.User.InsertUser(ctx, user)
-	return err
+	insertedUser, err := db.User.InsertUser(ctx, user)
+	if err != nil {
+		return nil, err
+	}
+	return insertedUser, nil
 }
 
-func seedHotel(name, location string, rating int) error {
+func seedHotel(name, location string, rating int) (*types.Hotel, error) {
 	hotel := &types.Hotel{
 		Name:     name,
 		Location: location,
@@ -64,7 +73,7 @@ func seedHotel(name, location string, rating int) error {
 	}
 	insertedHotel, err := db.Hotel.InsertHotel(ctx, hotel)
 	if err != nil {
-		return err
+		return nil, err
 	}
 
 	rooms := []types.Room{
@@ -84,11 +93,25 @@ func seedHotel(name, location string, rating int) error {
 
 	for _, room := range rooms {
 		room.HotelID = insertedHotel.ID
-		_, err := db.Room.InsertRoom(ctx, &room)
+		insertedRoom, err := db.Room.InsertRoom(ctx, &room)
 		if err != nil {
-			return err
+			return nil, err
 		}
+		hotel.Rooms = append(hotel.Rooms, insertedRoom.ID)
 	}
 
-	return nil
+	return hotel, nil
+}
+
+func seedBooking(userID, roomID string, numPeople int, fromDate, toDate time.Time, canceled bool) error {
+	booking := &types.Booking{
+		UserID:    userID,
+		RoomID:    roomID,
+		NumPeople: numPeople,
+		FromDate:  fromDate,
+		ToDate:    toDate,
+		Canceled:  canceled,
+	}
+	_, err := db.Booking.InsertBooking(ctx, booking)
+	return err
 }
