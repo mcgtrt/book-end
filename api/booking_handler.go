@@ -24,13 +24,10 @@ func (h *BookingHandler) HandleGetBooking(c *fiber.Ctx) error {
 	}
 	user, ok := c.Context().Value("user").(*types.User)
 	if !ok {
-		return c.Status(http.StatusInternalServerError).JSON(genericResponse{
-			Type: "error",
-			Msg:  "internal server error",
-		})
+		return GenericResponseInternalServerError(c)
 	}
 	if !user.Admin && user.ID != booking.UserID {
-		return genericResponseUnauthorised(c)
+		return GenericResponseUnauthorised(c)
 	}
 	return c.JSON(booking)
 }
@@ -38,10 +35,10 @@ func (h *BookingHandler) HandleGetBooking(c *fiber.Ctx) error {
 func (h *BookingHandler) HandleGetBookings(c *fiber.Ctx) error {
 	user, ok := c.Context().UserValue("user").(*types.User)
 	if !ok {
-		return genericResponseUnauthorised(c)
+		return GenericResponseUnauthorised(c)
 	}
 	if !user.Admin {
-		return genericResponseUnauthorised(c)
+		return GenericResponseUnauthorised(c)
 	}
 	bookings, err := h.store.GetBookings(c.Context(), bson.M{})
 	if err != nil {
@@ -54,10 +51,7 @@ func (h *BookingHandler) HandlePostBooking(c *fiber.Ctx) error {
 	id := c.Params("id")
 	user, ok := c.Context().Value("user").(*types.User)
 	if !ok {
-		return c.Status(http.StatusInternalServerError).JSON(genericResponse{
-			Type: "error",
-			Msg:  "internal server error",
-		})
+		return GenericResponseInternalServerError(c)
 	}
 	var params *types.BookRoomParams
 	if err := c.BodyParser(&params); err != nil {
@@ -68,7 +62,7 @@ func (h *BookingHandler) HandlePostBooking(c *fiber.Ctx) error {
 		return c.JSON(errors)
 	}
 	if err := h.isRoomAvailable(c.Context(), id, params); err != nil {
-		return c.Status(http.StatusBadRequest).JSON(genericResponse{
+		return c.Status(http.StatusBadRequest).JSON(GenericResponse{
 			Type: "error",
 			Msg:  err.Error(),
 		})
@@ -123,13 +117,6 @@ func (h *BookingHandler) isRoomAvailable(ctx context.Context, roomID string, par
 		return fmt.Errorf("room already booked for selected time frame")
 	}
 	return nil
-}
-
-func genericResponseUnauthorised(c *fiber.Ctx) error {
-	return c.Status(http.StatusUnauthorized).JSON(genericResponse{
-		Type: "error",
-		Msg:  "unauthorised",
-	})
 }
 
 func newBookingHandler(store store.BookingStore) *BookingHandler {

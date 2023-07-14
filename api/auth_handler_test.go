@@ -78,7 +78,7 @@ func TestAuthenticateWrongPassword(t *testing.T) {
 	if res.StatusCode != http.StatusBadRequest {
 		t.Fatalf("expected to find status code %d but found %d", http.StatusBadRequest, res.StatusCode)
 	}
-	var resp genericResponse
+	var resp GenericResponse
 	if err := json.NewDecoder(res.Body).Decode(&resp); err != nil {
 		t.Fatal("expected to find a generic response but none found")
 	}
