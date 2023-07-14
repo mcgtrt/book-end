@@ -19,7 +19,7 @@ var (
 func main() {
 	user, _ := seedUser("John", "Doe", "john@doe.com", "superstrongpassword", false)
 	seedUser("Mark", "Spencer", "mark@spencer.com", "superstrongpassword123", false)
-	seedUser("Sabrina", "Glevesig", "sabrina@glevesig.com", "123superstrongpassword", true)
+	seedUser("Geralt", "Witcher", "geralt@witcher.com", "monsterstrongpassword", true)
 
 	hotel, _ := seedHotel("Adidas", "United States", 5)
 	seedHotel("Puma", "France", 3)

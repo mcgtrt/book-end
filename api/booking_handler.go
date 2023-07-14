@@ -16,7 +16,6 @@ type BookingHandler struct {
 	store store.BookingStore
 }
 
-// TODO: THIS NEEDS TO BE USER AUTHORISED
 func (h *BookingHandler) HandleGetBooking(c *fiber.Ctx) error {
 	id := c.Params("id")
 	booking, err := h.store.GetBookingByID(c.Context(), id)
@@ -31,16 +30,19 @@ func (h *BookingHandler) HandleGetBooking(c *fiber.Ctx) error {
 		})
 	}
 	if !user.Admin && user.ID != booking.UserID {
-		return c.Status(http.StatusUnauthorized).JSON(genericResponse{
-			Type: "error",
-			Msg:  "unauthorised",
-		})
+		return genericResponseUnauthorised(c)
 	}
 	return c.JSON(booking)
 }
 
-// TODO: THIS NEEDS TO BE ADMIN AUTHORISED
 func (h *BookingHandler) HandleGetBookings(c *fiber.Ctx) error {
+	user, ok := c.Context().UserValue("user").(*types.User)
+	if !ok {
+		return genericResponseUnauthorised(c)
+	}
+	if !user.Admin {
+		return genericResponseUnauthorised(c)
+	}
 	bookings, err := h.store.GetBookings(c.Context(), bson.M{})
 	if err != nil {
 		return err
@@ -121,6 +123,13 @@ func (h *BookingHandler) isRoomAvailable(ctx context.Context, roomID string, par
 		return fmt.Errorf("room already booked for selected time frame")
 	}
 	return nil
+}
+
+func genericResponseUnauthorised(c *fiber.Ctx) error {
+	return c.Status(http.StatusUnauthorized).JSON(genericResponse{
+		Type: "error",
+		Msg:  "unauthorised",
+	})
 }
 
 func newBookingHandler(store store.BookingStore) *BookingHandler {
