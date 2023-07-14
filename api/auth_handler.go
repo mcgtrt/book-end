@@ -44,12 +44,12 @@ func (h *AuthHandler) HandleAuth(c *fiber.Ctx) error {
 	}
 	resp := AuthResponse{
 		User:  user,
-		Token: newToken(user),
+		Token: CreateTokenFromUser(user),
 	}
 	return c.JSON(resp)
 }
 
-func newToken(user *types.User) string {
+func CreateTokenFromUser(user *types.User) string {
 	expires := time.Now().Add(time.Hour * 4).Unix()
 	claims := jwt.MapClaims{
 		"userID":  user.ID,

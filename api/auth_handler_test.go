@@ -2,38 +2,24 @@ package api
 
 import (
 	"bytes"
-	"context"
 	"encoding/json"
 	"net/http"
 	"net/http/httptest"
 	"reflect"
 	"testing"
 
-	"github.com/mcgtrt/book-end/store"
-	"github.com/mcgtrt/book-end/types"
+	"github.com/mcgtrt/book-end/store/fixtures"
 )
-
-func insertTestUser(userStore store.UserStore) *types.User {
-	params := &types.CreateUserParams{
-		FirstName: "John",
-		LastName:  "Doe",
-		Email:     "john@doe.com",
-		Password:  "superstrongpassword",
-	}
-	user, _ := types.NewUserFromParams(params)
-	insertedUser, _ := userStore.InsertUser(context.Background(), user)
-	return insertedUser
-}
 
 func TestAuthenticateSuccess(t *testing.T) {
 	tdb := setup(t)
 	defer tdb.teardown(t)
-	insertedUser := insertTestUser(tdb.db.User)
+	insertedUser := fixtures.AddUser(tdb.db, "Test", "User", false)
 
-	app := getFiberApp(tdb.db)
+	app := getTestFiberApp(tdb.db)
 	params := &AuthParams{
-		Email:    "john@doe.com",
-		Password: "superstrongpassword",
+		Email:    "test@user.com",
+		Password: "test_user",
 	}
 	body, _ := json.Marshal(params)
 	req := httptest.NewRequest("POST", "/auth", bytes.NewReader(body))
@@ -61,9 +47,9 @@ func TestAuthenticateSuccess(t *testing.T) {
 func TestAuthenticateWrongPassword(t *testing.T) {
 	tdb := setup(t)
 	defer tdb.teardown(t)
-	insertTestUser(tdb.db.User)
+	fixtures.AddUser(tdb.db, "Test", "User", false)
 
-	app := getFiberApp(tdb.db)
+	app := getTestFiberApp(tdb.db)
 	params := &AuthParams{
 		Email:    "john@doe.com",
 		Password: "superstrongpassword123",
