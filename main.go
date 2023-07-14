@@ -60,6 +60,7 @@ func main() {
 	apiv1.Get("/booking/:id", handler.Booking.HandleGetBooking)
 	apiv1.Get("/booking", handler.Booking.HandleGetBookings)
 	apiv1.Post("/booking/:id", handler.Booking.HandlePostBooking)
+	apiv1.Put("/booking/:id/cancel", handler.Booking.HandleCancelBooking)
 
 	log.Fatal(app.Listen(*listenAddr))
 }

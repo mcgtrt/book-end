@@ -85,6 +85,19 @@ func (h *BookingHandler) HandlePostBooking(c *fiber.Ctx) error {
 	return c.JSON(insertedBooking)
 }
 
+func (h *BookingHandler) HandleCancelBooking(c *fiber.Ctx) error {
+	id := c.Params("id")
+	update := bson.M{
+		"$set": bson.M{
+			"canceled": true,
+		},
+	}
+	if err := h.store.UpdateBooking(c.Context(), id, update); err != nil {
+		return err
+	}
+	return c.JSON(map[string]string{"updated": id})
+}
+
 func (h *BookingHandler) isRoomAvailable(ctx context.Context, roomID string, params *types.BookRoomParams) error {
 	oid, err := primitive.ObjectIDFromHex(roomID)
 	if err != nil {
@@ -98,6 +111,7 @@ func (h *BookingHandler) isRoomAvailable(ctx context.Context, roomID string, par
 		"toDate": bson.M{
 			"$lte": params.ToDate,
 		},
+		"canceled": false,
 	}
 	bookings, err := h.store.GetBookings(ctx, where)
 	if err != nil {
