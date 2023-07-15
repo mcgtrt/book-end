@@ -2,7 +2,6 @@ package api
 
 import (
 	"context"
-	"fmt"
 	"net/http"
 
 	"github.com/gofiber/fiber/v2"
@@ -24,10 +23,10 @@ func (h *BookingHandler) HandleGetBooking(c *fiber.Ctx) error {
 	}
 	user, ok := c.Context().Value("user").(*types.User)
 	if !ok {
-		return GenericResponseInternalServerError(c)
+		return ErrInternalServerError()
 	}
 	if !user.Admin && user.ID != booking.UserID {
-		return GenericResponseUnauthorised(c)
+		return ErrUnauthorised()
 	}
 	return c.JSON(booking)
 }
@@ -35,14 +34,14 @@ func (h *BookingHandler) HandleGetBooking(c *fiber.Ctx) error {
 func (h *BookingHandler) HandleGetBookings(c *fiber.Ctx) error {
 	user, ok := c.Context().UserValue("user").(*types.User)
 	if !ok {
-		return GenericResponseUnauthorised(c)
+		return ErrUnauthorised()
 	}
 	if !user.Admin {
-		return GenericResponseUnauthorised(c)
+		return ErrUnauthorised()
 	}
 	bookings, err := h.store.GetBookings(c.Context(), bson.M{})
 	if err != nil {
-		return err
+		return ErrBadRequest()
 	}
 	return c.JSON(bookings)
 }
@@ -51,7 +50,7 @@ func (h *BookingHandler) HandlePostBooking(c *fiber.Ctx) error {
 	id := c.Params("id")
 	user, ok := c.Context().Value("user").(*types.User)
 	if !ok {
-		return GenericResponseInternalServerError(c)
+		return ErrInternalServerError()
 	}
 	var params *types.BookRoomParams
 	if err := c.BodyParser(&params); err != nil {
@@ -62,10 +61,7 @@ func (h *BookingHandler) HandlePostBooking(c *fiber.Ctx) error {
 		return c.JSON(errors)
 	}
 	if err := h.isRoomAvailable(c.Context(), id, params); err != nil {
-		return c.Status(http.StatusBadRequest).JSON(GenericResponse{
-			Type: "error",
-			Msg:  err.Error(),
-		})
+		return NewError(http.StatusBadRequest, "room taken for date selected")
 	}
 	booking := &types.Booking{
 		RoomID:    id,
@@ -76,7 +72,7 @@ func (h *BookingHandler) HandlePostBooking(c *fiber.Ctx) error {
 	}
 	insertedBooking, err := h.store.InsertBooking(c.Context(), booking)
 	if err != nil {
-		return err
+		return ErrBadRequest()
 	}
 	return c.JSON(insertedBooking)
 }
@@ -89,7 +85,7 @@ func (h *BookingHandler) HandleCancelBooking(c *fiber.Ctx) error {
 		},
 	}
 	if err := h.store.UpdateBooking(c.Context(), id, update); err != nil {
-		return err
+		return ErrBadRequest()
 	}
 	return c.JSON(map[string]string{"updated": id})
 }
@@ -97,7 +93,7 @@ func (h *BookingHandler) HandleCancelBooking(c *fiber.Ctx) error {
 func (h *BookingHandler) isRoomAvailable(ctx context.Context, roomID string, params *types.BookRoomParams) error {
 	oid, err := primitive.ObjectIDFromHex(roomID)
 	if err != nil {
-		return err
+		return ErrInternalServerError()
 	}
 	where := bson.M{
 		"_id": oid,
@@ -111,10 +107,10 @@ func (h *BookingHandler) isRoomAvailable(ctx context.Context, roomID string, par
 	}
 	bookings, err := h.store.GetBookings(ctx, where)
 	if err != nil {
-		return err
+		return ErrBadRequest()
 	}
 	if len(bookings) > 0 {
-		return fmt.Errorf("room already booked for selected time frame")
+		return NewError(http.StatusBadRequest, "room already taken")
 	}
 	return nil
 }

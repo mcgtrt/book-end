@@ -9,7 +9,6 @@ import (
 	"time"
 
 	"github.com/gofiber/fiber/v2"
-	"github.com/mcgtrt/book-end/api/middleware"
 	"github.com/mcgtrt/book-end/store/fixtures"
 	"github.com/mcgtrt/book-end/types"
 )
@@ -29,7 +28,7 @@ func TestUserGetBooking(t *testing.T) {
 		booking  = fixtures.AddBooking(tdb.db, user.ID, room.ID, 2, fromDate, toDate)
 
 		app            = fiber.New()
-		appGroup       = app.Group("/", middleware.JWTAuthenticate(tdb.db.User))
+		appGroup       = app.Group("/", JWTAuthenticate(tdb.db.User))
 		bookingHandler = newBookingHandler(tdb.db.Booking)
 	)
 
@@ -95,7 +94,7 @@ func TestAdminGetBookings(t *testing.T) {
 		booking  = fixtures.AddBooking(tdb.db, user.ID, room.ID, 2, fromDate, toDate)
 
 		app            = fiber.New()
-		admin          = app.Group("/", middleware.JWTAuthenticate(tdb.db.User), middleware.AdminAuthentication)
+		admin          = app.Group("/", JWTAuthenticate(tdb.db.User), AdminAuthentication)
 		bookingHandler = newBookingHandler(tdb.db.Booking)
 	)
 

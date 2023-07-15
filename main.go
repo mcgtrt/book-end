@@ -4,10 +4,10 @@ import (
 	"context"
 	"flag"
 	"log"
+	"net/http"
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/mcgtrt/book-end/api"
-	"github.com/mcgtrt/book-end/api/middleware"
 	"github.com/mcgtrt/book-end/store"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
@@ -15,7 +15,11 @@ import (
 
 var config = fiber.Config{
 	ErrorHandler: func(c *fiber.Ctx, err error) error {
-		return c.JSON(map[string]string{"err": err.Error()})
+		if apiErr, ok := err.(api.Error); ok {
+			return c.Status(apiErr.Code).JSON(map[string]string{"err": apiErr.Msg})
+		}
+		apiErr := api.NewError(http.StatusInternalServerError, err.Error())
+		return c.Status(apiErr.Code).JSON(apiErr)
 	},
 }
 
@@ -32,7 +36,7 @@ func main() {
 		store   = store.NewMongoStore(client, store.DBNAME)
 		handler = api.NewHandler(store)
 		app     = fiber.New(config)
-		apiv1   = app.Group("/api/v1", middleware.JWTAuthenticate(store.User))
+		apiv1   = app.Group("/api/v1", api.JWTAuthenticate(store.User))
 	)
 
 	// handle auth

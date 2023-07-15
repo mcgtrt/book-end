@@ -30,17 +30,17 @@ type AuthResponse struct {
 func (h *AuthHandler) HandleAuth(c *fiber.Ctx) error {
 	var authParams AuthParams
 	if err := c.BodyParser(&authParams); err != nil {
-		return err
+		return ErrBadRequest()
 	}
 	user, err := h.userStore.GetUserByEmail(c.Context(), authParams.Email)
 	if err != nil {
 		if errors.Is(err, mongo.ErrNoDocuments) {
-			return GenericResponseInvalidCredentials(c)
+			return ErrInvalidCredentials()
 		}
 		return err
 	}
 	if !isPasswordValid(user.EncryptedPassword, authParams.Password) {
-		return GenericResponseInvalidCredentials(c)
+		return ErrInvalidCredentials()
 	}
 	resp := AuthResponse{
 		User:  user,

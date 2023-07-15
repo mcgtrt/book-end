@@ -1,7 +1,8 @@
-package middleware
+package api
 
 import (
 	"fmt"
+	"net/http"
 	"os"
 	"time"
 
@@ -10,29 +11,27 @@ import (
 	"github.com/mcgtrt/book-end/store"
 )
 
-var errUnauthorised = fmt.Errorf("unauthorised")
-
 func JWTAuthenticate(userStore store.UserStore) fiber.Handler {
 	return func(c *fiber.Ctx) error {
 		token, ok := c.GetReqHeaders()["X-Api-Token"]
 		if !ok {
-			return errUnauthorised
+			return ErrUnauthorised()
 		}
 		claims := getClaims(token)
 		if claims == nil {
-			return errUnauthorised
+			return ErrUnauthorised()
 		}
 		expFloat := claims["expires"].(float64)
 		expInt := int64(expFloat)
 
 		if time.Now().Unix() > expInt {
-			return fmt.Errorf("token expired")
+			return NewError(http.StatusBadRequest, "token expired")
 		}
 
 		userID := claims["userID"].(string)
 		user, err := userStore.GetUserByID(c.Context(), userID)
 		if err != nil {
-			return errUnauthorised
+			return ErrUnauthorised()
 		}
 		c.Context().SetUserValue("user", user)
 

@@ -1,4 +1,4 @@
-package middleware
+package api
 
 import (
 	"github.com/gofiber/fiber/v2"
@@ -8,10 +8,10 @@ import (
 func AdminAuthentication(c *fiber.Ctx) error {
 	user, ok := c.Context().UserValue("user").(*types.User)
 	if !ok {
-		return errUnauthorised
+		return ErrUnauthorised()
 	}
 	if !user.Admin {
-		return errUnauthorised
+		return ErrUnauthorised()
 	}
 	return c.Next()
 }
