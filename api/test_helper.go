@@ -3,8 +3,10 @@ package api
 import (
 	"context"
 	"log"
+	"net/http"
 	"testing"
 
+	"github.com/gofiber/fiber/v2"
 	"github.com/mcgtrt/book-end/store"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
@@ -31,4 +33,17 @@ func setup(t *testing.T) *testdb {
 		client: client,
 		db:     store,
 	}
+}
+
+func getApp() *fiber.App {
+	var config = fiber.Config{
+		ErrorHandler: func(c *fiber.Ctx, err error) error {
+			if apiErr, ok := err.(Error); ok {
+				return c.Status(apiErr.Code).JSON(apiErr)
+			}
+			apiErr := NewError(http.StatusInternalServerError, err.Error())
+			return c.Status(apiErr.Code).JSON(apiErr)
+		},
+	}
+	return fiber.New(config)
 }

@@ -8,7 +8,6 @@ import (
 	"testing"
 	"time"
 
-	"github.com/gofiber/fiber/v2"
 	"github.com/mcgtrt/book-end/store/fixtures"
 	"github.com/mcgtrt/book-end/types"
 )
@@ -27,7 +26,7 @@ func TestUserGetBooking(t *testing.T) {
 		toDate   = time.Now().AddDate(0, 0, 10)
 		booking  = fixtures.AddBooking(tdb.db, user.ID, room.ID, 2, fromDate, toDate)
 
-		app            = fiber.New()
+		app            = getApp()
 		appGroup       = app.Group("/", JWTAuthenticate(tdb.db.User))
 		bookingHandler = newBookingHandler(tdb.db.Booking)
 	)
@@ -93,7 +92,7 @@ func TestAdminGetBookings(t *testing.T) {
 		toDate   = time.Now().AddDate(0, 0, 10)
 		booking  = fixtures.AddBooking(tdb.db, user.ID, room.ID, 2, fromDate, toDate)
 
-		app            = fiber.New()
+		app            = getApp()
 		admin          = app.Group("/", JWTAuthenticate(tdb.db.User), AdminAuthentication)
 		bookingHandler = newBookingHandler(tdb.db.Booking)
 	)

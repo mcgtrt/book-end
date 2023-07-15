@@ -1,7 +1,6 @@
 package api
 
 import (
-	"errors"
 	"os"
 	"time"
 
@@ -9,7 +8,6 @@ import (
 	"github.com/golang-jwt/jwt/v5"
 	"github.com/mcgtrt/book-end/store"
 	"github.com/mcgtrt/book-end/types"
-	"go.mongodb.org/mongo-driver/mongo"
 	"golang.org/x/crypto/bcrypt"
 )
 
@@ -34,10 +32,7 @@ func (h *AuthHandler) HandleAuth(c *fiber.Ctx) error {
 	}
 	user, err := h.userStore.GetUserByEmail(c.Context(), authParams.Email)
 	if err != nil {
-		if errors.Is(err, mongo.ErrNoDocuments) {
-			return ErrInvalidCredentials()
-		}
-		return err
+		return ErrInvalidCredentials()
 	}
 	if !isPasswordValid(user.EncryptedPassword, authParams.Password) {
 		return ErrInvalidCredentials()

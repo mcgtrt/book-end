@@ -6,7 +6,6 @@ import (
 	"net/http/httptest"
 	"testing"
 
-	"github.com/gofiber/fiber/v2"
 	"github.com/mcgtrt/book-end/types"
 )
 
@@ -15,7 +14,7 @@ func TestPostUser(t *testing.T) {
 	defer tdb.teardown(t)
 
 	var (
-		app         = fiber.New()
+		app         = getApp()
 		userHandler = newUserHandler(tdb.db.User)
 	)
 

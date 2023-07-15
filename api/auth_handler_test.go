@@ -8,7 +8,6 @@ import (
 	"reflect"
 	"testing"
 
-	"github.com/gofiber/fiber/v2"
 	"github.com/mcgtrt/book-end/store/fixtures"
 )
 
@@ -18,7 +17,7 @@ func TestAuthenticateSuccess(t *testing.T) {
 
 	var (
 		insertedUser = fixtures.AddUser(tdb.db, "Test", "User", false)
-		app          = fiber.New()
+		app          = getApp()
 		authHandler  = newAuthHandler(tdb.db.User)
 	)
 
@@ -56,7 +55,7 @@ func TestAuthenticateWrongPassword(t *testing.T) {
 	fixtures.AddUser(tdb.db, "Test", "User", false)
 
 	var (
-		app         = fiber.New()
+		app         = getApp()
 		authHandler = newAuthHandler(tdb.db.User)
 	)
 
@@ -77,11 +76,11 @@ func TestAuthenticateWrongPassword(t *testing.T) {
 	}
 	var resp Error
 	if err := json.NewDecoder(res.Body).Decode(&resp); err != nil {
-		t.Fatal("expected to find a generic response but none found")
+		t.Fatal("expected to find generic error response but none found")
 	}
 	invalid := ErrInvalidCredentials()
 	if resp.Code != invalid.Code {
-		t.Fatalf("expected to find status code %d but found %s", invalid.Code, resp.Code)
+		t.Fatalf("expected to find status code %d but found %d", invalid.Code, resp.Code)
 	}
 	if resp.Msg != invalid.Msg {
 		t.Fatalf("expected to find %s error message but found %s", invalid.Msg, resp.Msg)
