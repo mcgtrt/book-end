@@ -3,13 +3,13 @@ package types
 import "go.mongodb.org/mongo-driver/bson"
 
 type CreateRoomParams struct {
-	Type  RoomType `json:"type"`
-	Price float64  `json:"price"`
+	Type  string  `json:"type"`
+	Price float64 `json:"price"`
 }
 
 func (p CreateRoomParams) ToBSON() bson.M {
 	b := bson.M{}
-	if p.Type != 0 && p.Type <= VipRoomType {
+	if p.Type != "" {
 		b["type"] = p.Type
 	}
 	if p.Price != 0 {
@@ -26,19 +26,9 @@ func NewRoomFromParams(params *CreateRoomParams, id string) *Room {
 	}
 }
 
-type RoomType int
-
-const (
-	_ RoomType = iota
-	SingleBedRoomType
-	DoubleBedRoomType
-	ApartmentRoomType
-	VipRoomType
-)
-
 type Room struct {
-	ID      string   `bson:"_id,omitempty" json:"id,omitempty"`
-	Type    RoomType `bson:"type" json:"type"`
-	Price   float64  `bson:"price" json:"price"`
-	HotelID string   `bson:"hotelID" json:"hotelID"`
+	ID      string  `bson:"_id,omitempty" json:"id,omitempty"`
+	Type    string  `bson:"type" json:"type"`
+	Price   float64 `bson:"price" json:"price"`
+	HotelID string  `bson:"hotelID" json:"hotelID"`
 }

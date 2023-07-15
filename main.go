@@ -7,17 +7,10 @@ import (
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/mcgtrt/book-end/api"
-	"github.com/mcgtrt/book-end/api/middleware"
 	"github.com/mcgtrt/book-end/store"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
 )
-
-var config = fiber.Config{
-	ErrorHandler: func(c *fiber.Ctx, err error) error {
-		return c.JSON(map[string]string{"err": err.Error()})
-	},
-}
 
 func main() {
 	listenAddr := flag.String("listenAddr", ":3000", "Listen address for hotel reservation API")
@@ -29,10 +22,11 @@ func main() {
 	}
 
 	var (
-		app     = fiber.New(config)
-		apiv1   = app.Group("/api/v1", middleware.JWTAuthenticate)
 		store   = store.NewMongoStore(client, store.DBNAME)
 		handler = api.NewHandler(store)
+		config  = fiber.Config{ErrorHandler: api.ErrorHandler}
+		app     = fiber.New(config)
+		apiv1   = app.Group("/api/v1", api.JWTAuthenticate(store.User))
 	)
 
 	// handle auth
@@ -55,6 +49,12 @@ func main() {
 	// handle hotel rooms
 	apiv1.Get("/hotel/:id/room", handler.Room.HandleGetRooms)
 	apiv1.Post("/hotel/:id/room", handler.Room.HandlePostRoom)
+
+	// handle bookings
+	apiv1.Get("/booking/:id", handler.Booking.HandleGetBooking)
+	apiv1.Get("/booking", handler.Booking.HandleGetBookings)
+	apiv1.Post("/booking/:id", handler.Booking.HandlePostBooking)
+	apiv1.Put("/booking/:id/cancel", handler.Booking.HandleCancelBooking)
 
 	log.Fatal(app.Listen(*listenAddr))
 }

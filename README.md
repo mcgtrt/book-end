@@ -1,4 +1,4 @@
-# book-end - back-end api for hotel reservations
+# book-end - Hotel Reservation API
 
 ## Project outline
 - users -> book a hotel room

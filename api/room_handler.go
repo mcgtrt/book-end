@@ -7,14 +7,14 @@ import (
 )
 
 type RoomHandler struct {
-	roomStore store.RoomStore
+	store *store.Store
 }
 
 func (h *RoomHandler) HandleGetRooms(c *fiber.Ctx) error {
 	id := c.Params("id")
-	rooms, err := h.roomStore.GetRooms(c.Context(), id)
+	rooms, err := h.store.Room.GetRooms(c.Context(), id)
 	if err != nil {
-		return err
+		return ErrBadRequest()
 	}
 	return c.JSON(rooms)
 }
@@ -22,20 +22,20 @@ func (h *RoomHandler) HandleGetRooms(c *fiber.Ctx) error {
 func (h *RoomHandler) HandlePostRoom(c *fiber.Ctx) error {
 	var params *types.CreateRoomParams
 	if err := c.BodyParser(&params); err != nil {
-		return err
+		return ErrBadRequest()
 	}
 	id := c.Params("id")
 	room := types.NewRoomFromParams(params, id)
 
-	insertedRoom, err := h.roomStore.InsertRoom(c.Context(), room)
+	insertedRoom, err := h.store.Room.InsertRoom(c.Context(), room)
 	if err != nil {
-		return err
+		return ErrBadRequest()
 	}
 	return c.JSON(insertedRoom)
 }
 
-func newRoomHandler(roomStore store.RoomStore) *RoomHandler {
+func newRoomHandler(store *store.Store) *RoomHandler {
 	return &RoomHandler{
-		roomStore: roomStore,
+		store: store,
 	}
 }

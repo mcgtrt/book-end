@@ -1,8 +1,6 @@
 package api
 
 import (
-	"errors"
-	"fmt"
 	"os"
 	"time"
 
@@ -10,11 +8,8 @@ import (
 	"github.com/golang-jwt/jwt/v5"
 	"github.com/mcgtrt/book-end/store"
 	"github.com/mcgtrt/book-end/types"
-	"go.mongodb.org/mongo-driver/mongo"
 	"golang.org/x/crypto/bcrypt"
 )
-
-var errInvalidCredentials = fmt.Errorf("invalid credentials")
 
 type AuthHandler struct {
 	userStore store.UserStore
@@ -33,29 +28,26 @@ type AuthResponse struct {
 func (h *AuthHandler) HandleAuth(c *fiber.Ctx) error {
 	var authParams AuthParams
 	if err := c.BodyParser(&authParams); err != nil {
-		return err
+		return ErrBadRequest()
 	}
 	user, err := h.userStore.GetUserByEmail(c.Context(), authParams.Email)
 	if err != nil {
-		if errors.Is(err, mongo.ErrNoDocuments) {
-			return errInvalidCredentials
-		}
-		return err
+		return ErrInvalidCredentials()
 	}
 	if !isPasswordValid(user.EncryptedPassword, authParams.Password) {
-		return errInvalidCredentials
+		return ErrInvalidCredentials()
 	}
 	resp := AuthResponse{
 		User:  user,
-		Token: newToken(user),
+		Token: CreateTokenFromUser(user),
 	}
 	return c.JSON(resp)
 }
 
-func newToken(user *types.User) string {
+func CreateTokenFromUser(user *types.User) string {
 	expires := time.Now().Add(time.Hour * 4).Unix()
 	claims := jwt.MapClaims{
-		"id":      user.ID,
+		"userID":  user.ID,
 		"email":   user.Email,
 		"expires": expires,
 	}

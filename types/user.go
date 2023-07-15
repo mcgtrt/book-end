@@ -82,6 +82,7 @@ type User struct {
 	LastName          string `bson:"lastName" json:"lastName"`
 	Email             string `bson:"email" json:"email"`
 	EncryptedPassword string `bson:"encryptedPassword" json:"-"`
+	Admin             bool   `bson:"admin" json:"-"`
 }
 
 func NewUserFromParams(params *CreateUserParams) (*User, error) {
@@ -94,5 +95,6 @@ func NewUserFromParams(params *CreateUserParams) (*User, error) {
 		LastName:          params.LastName,
 		Email:             params.Email,
 		EncryptedPassword: string(encpw),
+		Admin:             false,
 	}, nil
 }
