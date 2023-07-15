@@ -6,6 +6,7 @@ import (
 	"net/http/httptest"
 	"testing"
 
+	"github.com/gofiber/fiber/v2"
 	"github.com/mcgtrt/book-end/types"
 )
 
@@ -13,7 +14,12 @@ func TestPostUser(t *testing.T) {
 	tdb := setup(t)
 	defer tdb.teardown(t)
 
-	app := getTestFiberApp(tdb.db)
+	var (
+		app         = fiber.New()
+		userHandler = newUserHandler(tdb.db.User)
+	)
+
+	app.Post("/", userHandler.HandlePostUser)
 	params := &types.CreateUserParams{
 		FirstName: "John",
 		LastName:  "Doe",

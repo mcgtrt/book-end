@@ -8,21 +8,27 @@ import (
 	"reflect"
 	"testing"
 
+	"github.com/gofiber/fiber/v2"
 	"github.com/mcgtrt/book-end/store/fixtures"
 )
 
 func TestAuthenticateSuccess(t *testing.T) {
 	tdb := setup(t)
 	defer tdb.teardown(t)
-	insertedUser := fixtures.AddUser(tdb.db, "Test", "User", false)
 
-	app := getTestFiberApp(tdb.db)
+	var (
+		insertedUser = fixtures.AddUser(tdb.db, "Test", "User", false)
+		app          = fiber.New()
+		authHandler  = newAuthHandler(tdb.db.User)
+	)
+
+	app.Post("/", authHandler.HandleAuth)
 	params := &AuthParams{
 		Email:    "test@user.com",
 		Password: "test_user",
 	}
 	body, _ := json.Marshal(params)
-	req := httptest.NewRequest("POST", "/auth", bytes.NewReader(body))
+	req := httptest.NewRequest("POST", "/", bytes.NewReader(body))
 	req.Header.Add("Content-Type", "application/json")
 	res, err := app.Test(req)
 	if err != nil {
@@ -49,13 +55,18 @@ func TestAuthenticateWrongPassword(t *testing.T) {
 	defer tdb.teardown(t)
 	fixtures.AddUser(tdb.db, "Test", "User", false)
 
-	app := getTestFiberApp(tdb.db)
+	var (
+		app         = fiber.New()
+		authHandler = newAuthHandler(tdb.db.User)
+	)
+
+	app.Post("/", authHandler.HandleAuth)
 	params := &AuthParams{
 		Email:    "john@doe.com",
 		Password: "superstrongpassword123",
 	}
 	body, _ := json.Marshal(params)
-	req := httptest.NewRequest("POST", "/auth", bytes.NewReader(body))
+	req := httptest.NewRequest("POST", "/", bytes.NewReader(body))
 	req.Header.Add("Content-Type", "application/json")
 	res, err := app.Test(req)
 	if err != nil {
