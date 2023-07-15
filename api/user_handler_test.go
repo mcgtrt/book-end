@@ -30,7 +30,7 @@ func TestPostUser(t *testing.T) {
 	if err != nil {
 		t.Error(err)
 	}
-	req := httptest.NewRequest("POST", "/user", bytes.NewReader(body))
+	req := httptest.NewRequest("POST", "/", bytes.NewReader(body))
 	req.Header.Add("Content-Type", "application/json")
 	res, err := app.Test(req)
 	if err != nil {
