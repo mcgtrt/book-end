@@ -1,10 +1,22 @@
 package api
 
-import "net/http"
+import (
+	"net/http"
+
+	"github.com/gofiber/fiber/v2"
+)
 
 type Error struct {
 	Code int    `json:"code"`
 	Msg  string `json:"msg"`
+}
+
+func ErrorHandler(c *fiber.Ctx, err error) error {
+	if apiErr, ok := err.(Error); ok {
+		return c.Status(apiErr.Code).JSON(apiErr)
+	}
+	apiErr := NewError(http.StatusInternalServerError, err.Error())
+	return c.Status(apiErr.Code).JSON(apiErr)
 }
 
 func (e Error) Error() string {

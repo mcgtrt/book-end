@@ -3,7 +3,6 @@ package api
 import (
 	"context"
 	"log"
-	"net/http"
 	"testing"
 
 	"github.com/gofiber/fiber/v2"
@@ -37,13 +36,7 @@ func setup(t *testing.T) *testdb {
 
 func getApp() *fiber.App {
 	var config = fiber.Config{
-		ErrorHandler: func(c *fiber.Ctx, err error) error {
-			if apiErr, ok := err.(Error); ok {
-				return c.Status(apiErr.Code).JSON(apiErr)
-			}
-			apiErr := NewError(http.StatusInternalServerError, err.Error())
-			return c.Status(apiErr.Code).JSON(apiErr)
-		},
+		ErrorHandler: ErrorHandler,
 	}
 	return fiber.New(config)
 }

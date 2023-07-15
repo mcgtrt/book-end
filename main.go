@@ -4,7 +4,6 @@ import (
 	"context"
 	"flag"
 	"log"
-	"net/http"
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/mcgtrt/book-end/api"
@@ -12,16 +11,6 @@ import (
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
 )
-
-var config = fiber.Config{
-	ErrorHandler: func(c *fiber.Ctx, err error) error {
-		if apiErr, ok := err.(api.Error); ok {
-			return c.Status(apiErr.Code).JSON(apiErr)
-		}
-		apiErr := api.NewError(http.StatusInternalServerError, err.Error())
-		return c.Status(apiErr.Code).JSON(apiErr)
-	},
-}
 
 func main() {
 	listenAddr := flag.String("listenAddr", ":3000", "Listen address for hotel reservation API")
@@ -35,6 +24,7 @@ func main() {
 	var (
 		store   = store.NewMongoStore(client, store.DBNAME)
 		handler = api.NewHandler(store)
+		config  = fiber.Config{ErrorHandler: api.ErrorHandler}
 		app     = fiber.New(config)
 		apiv1   = app.Group("/api/v1", api.JWTAuthenticate(store.User))
 	)
