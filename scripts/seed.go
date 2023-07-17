@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"log"
+	"math/rand"
 	"time"
 
 	"github.com/mcgtrt/book-end/api"
@@ -32,4 +33,10 @@ func main() {
 	room := fixtures.AddRoom(db, "hall", hotel.ID, 399.97)
 	booking := fixtures.AddBooking(db, user.ID, room.ID, 5, time.Now().AddDate(0, 0, 1), time.Now().AddDate(0, 0, 5))
 	fmt.Printf("\n\nUSER TOKEN: %s\n\nADMIN TOKEN: %s\n\nBOOKING: %v\n\n", userToken, adminToken, booking)
+
+	for i := 0; i < 100; i++ {
+		name := fmt.Sprintf("random hotel name %d", i)
+		loc := fmt.Sprintf("loc %d random", i)
+		fixtures.AddHotel(db, name, loc, rand.Intn(5)+1, nil)
+	}
 }

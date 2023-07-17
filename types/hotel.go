@@ -5,6 +5,8 @@ import "go.mongodb.org/mongo-driver/bson"
 type HotelQueryParams struct {
 	Rooms  bool
 	Rating int
+	Page   int64
+	Limit  int64
 }
 
 type UpdateHotelParams struct {

@@ -4,6 +4,7 @@ import (
 	"github.com/gofiber/fiber/v2"
 	"github.com/mcgtrt/book-end/store"
 	"github.com/mcgtrt/book-end/types"
+	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
 type HotelHandler struct {
@@ -25,7 +26,7 @@ func (h *HotelHandler) HandleGetHotels(c *fiber.Ctx) error {
 	if err := c.QueryParser(&params); err != nil {
 		return ErrBadRequest()
 	}
-	hotels, err := h.hotelStore.GetHotels(c.Context())
+	hotels, err := h.hotelStore.GetHotels(c.Context(), createPaginationOptions(&params))
 	if err != nil {
 		return ErrBadRequest()
 	}
@@ -81,4 +82,11 @@ func newHotelHandler(hotelStore store.HotelStore, roomStore store.RoomStore) *Ho
 		hotelStore: hotelStore,
 		roomStore:  roomStore,
 	}
+}
+
+func createPaginationOptions(params *types.HotelQueryParams) *options.FindOptions {
+	opts := &options.FindOptions{}
+	opts.SetSkip((params.Page - 1) * params.Limit)
+	opts.SetLimit(params.Limit)
+	return opts
 }
