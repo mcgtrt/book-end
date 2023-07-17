@@ -16,14 +16,14 @@ import (
 
 func main() {
 	ctx := context.Background()
-	client, err := mongo.Connect(ctx, options.Client().ApplyURI(store.DBURI))
+	client, err := mongo.Connect(ctx, options.Client().ApplyURI(store.MongoDBURL))
 	if err != nil {
 		log.Fatal(err)
 	}
-	if err := client.Database(store.DBNAME).Drop(ctx); err != nil {
+	if err := client.Database(store.MongoDBNAME).Drop(ctx); err != nil {
 		log.Fatal(err)
 	}
-	db := store.NewMongoStore(client, store.DBNAME)
+	db := store.NewMongoStore(client, store.MongoDBNAME)
 
 	user := fixtures.AddUser(db, "Regular", "Folk", false)
 	userToken := api.CreateTokenFromUser(user)

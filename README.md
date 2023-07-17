@@ -11,11 +11,12 @@
 
 ## Project environment variables
 ```
-MONGO_DB_URI=mongodb://localhost:27017
-MONGO_DB_NAME=book-end
-TEST_MONGO_DB_NAME=book-end-test
-JWT_SECRET=superstrongsecretkeyNOBODYknows
 HTTPS_LISTEN_ADDRESS=:3000
+JWT_SECRET=superstrongsecretkeyNOBODYknows
+MONGO_DB_URL=mongodb://localhost:27017
+MONGO_DB_NAME=book-end
+MONGO_TEST_DB_NAME=book-end-test
+
 ```
 
 ## Resources

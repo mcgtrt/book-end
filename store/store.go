@@ -9,7 +9,7 @@ import (
 )
 
 var (
-	DBURI, DBNAME, TestDBNAME string
+	MongoDBURL, MongoDBNAME, MongoTestDBNAME string
 )
 
 type Store struct {
@@ -40,7 +40,7 @@ func init() {
 	if err := godotenv.Load(); err != nil {
 		panic(err)
 	}
-	DBURI = os.Getenv("MONGO_DB_URI")
-	DBNAME = os.Getenv("MONGO_DB_NAME")
-	TestDBNAME = os.Getenv("TEST_MONGO_DB_NAME")
+	MongoDBURL = os.Getenv("MONGO_DB_URL")
+	MongoDBNAME = os.Getenv("MONGO_DB_NAME")
+	MongoTestDBNAME = os.Getenv("MONGO_TEST_DB_NAME")
 }

@@ -13,13 +13,13 @@ import (
 )
 
 func main() {
-	client, err := mongo.Connect(context.Background(), options.Client().ApplyURI(store.DBURI))
+	client, err := mongo.Connect(context.Background(), options.Client().ApplyURI(store.MongoDBURL))
 	if err != nil {
 		panic(err)
 	}
 
 	var (
-		store   = store.NewMongoStore(client, store.DBNAME)
+		store   = store.NewMongoStore(client, store.MongoDBNAME)
 		handler = api.NewHandler(store)
 		config  = fiber.Config{ErrorHandler: api.ErrorHandler}
 		app     = fiber.New(config)
