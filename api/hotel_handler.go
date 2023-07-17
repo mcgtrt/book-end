@@ -40,9 +40,19 @@ func (h *HotelHandler) HandleGetHotels(c *fiber.Ctx) error {
 			hotelWithRooms := hotel.MakeHotelWithRooms(rooms)
 			hotelsWithRooms = append(hotelsWithRooms, hotelWithRooms)
 		}
-		return c.JSON(hotelsWithRooms)
+		res := Response{
+			Results: len(hotelsWithRooms),
+			Data:    hotelsWithRooms,
+			Page:    int(params.Page),
+		}
+		return c.JSON(res)
 	}
-	return c.JSON(hotels)
+	res := Response{
+		Results: len(hotels),
+		Data:    hotels,
+		Page:    int(params.Page),
+	}
+	return c.JSON(res)
 }
 
 func (h *HotelHandler) HandlePostHotel(c *fiber.Ctx) error {
@@ -89,4 +99,10 @@ func createPaginationOptions(params *types.HotelQueryParams) *options.FindOption
 	opts.SetSkip((params.Page - 1) * params.Limit)
 	opts.SetLimit(params.Limit)
 	return opts
+}
+
+type Response struct {
+	Results int `json:"results"`
+	Data    any `json:"data"`
+	Page    int `json:"page"`
 }
