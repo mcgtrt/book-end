@@ -2,8 +2,8 @@ package main
 
 import (
 	"context"
-	"flag"
 	"log"
+	"os"
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/mcgtrt/book-end/api"
@@ -13,9 +13,6 @@ import (
 )
 
 func main() {
-	listenAddr := flag.String("listenAddr", ":3000", "Listen address for hotel reservation API")
-	flag.Parse()
-
 	client, err := mongo.Connect(context.Background(), options.Client().ApplyURI(store.DBURI))
 	if err != nil {
 		panic(err)
@@ -56,5 +53,6 @@ func main() {
 	apiv1.Post("/booking/:id", handler.Booking.HandlePostBooking)
 	apiv1.Put("/booking/:id/cancel", handler.Booking.HandleCancelBooking)
 
-	log.Fatal(app.Listen(*listenAddr))
+	listenAddr := os.Getenv("HTTP_LISTEN_ADDR")
+	log.Fatal(app.Listen(listenAddr))
 }
