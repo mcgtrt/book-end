@@ -9,14 +9,14 @@
 - Scripts -> database management -> seeding, migration
 
 
-## Project environment variables
+## Example project environment variables
+### Adjust them to your local config
 ```
 HTTPS_LISTEN_ADDRESS=:3000
-JWT_SECRET=superstrongsecretkeyNOBODYknows
+JWT_SECRET=
 MONGO_DB_URL=mongodb://localhost:27017
 MONGO_DB_NAME=book-end
 MONGO_TEST_DB_NAME=book-end-test
-
 ```
 
 ## Resources
