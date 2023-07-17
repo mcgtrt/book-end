@@ -2,14 +2,14 @@ package store
 
 import (
 	"context"
+	"os"
 
+	"github.com/joho/godotenv"
 	"go.mongodb.org/mongo-driver/mongo"
 )
 
-const (
-	DBURI      = "mongodb://localhost:27017"
-	DBNAME     = "book-end"
-	TestDBNAME = "book-end-test"
+var (
+	MongoDBURL, MongoDBNAME, MongoTestDBNAME string
 )
 
 type Store struct {
@@ -34,4 +34,13 @@ func NewMongoStore(client *mongo.Client, dbname string) *Store {
 
 type Dropper interface {
 	Drop(context.Context) error
+}
+
+func init() {
+	if err := godotenv.Load(); err != nil {
+		panic(err)
+	}
+	MongoDBURL = os.Getenv("MONGO_DB_URL")
+	MongoDBNAME = os.Getenv("MONGO_DB_NAME")
+	MongoTestDBNAME = os.Getenv("MONGO_TEST_DB_NAME")
 }
